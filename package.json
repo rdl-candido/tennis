@@ -1,10 +1,12 @@
 {
-  "name": "table-tennis",
+  "name": "tennis",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "compile": "tsc",
+    "start": "npm run compile && node dist/index.js"
   },
   "keywords": [],
   "author": "",
