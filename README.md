@@ -1,4 +1,4 @@
-## Scoring system for a tennis match
+### Scoring system for a tennis match
 
 A match has one set and a set has many games
 
