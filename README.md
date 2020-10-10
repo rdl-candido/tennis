@@ -64,4 +64,4 @@ don't build guis etc, we're more interested in your approach to solving the give
 don't worry about making a command line interface to the application
 don't use any frameworks (rails, spring etc), or any external jars/gems (unless it's for testing or build/dependency mgt)
 When you've finished, send through the link to your github-repo.
-Happy coding!
+# Happy coding!
