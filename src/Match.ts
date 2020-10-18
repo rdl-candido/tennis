@@ -16,11 +16,9 @@ export class Match {
   pointWonBy(player: string): void {
     if (this.player1.name === player) {
       this.set.pointWonBy(this.player1);
-    }
-    else if (this.player2.name === player) {
+    } else if (this.player2.name === player) {
       this.set.pointWonBy(this.player2);
-    }
-    else {
+    } else {
       throw new Error(`Invalid player`);
     }
   }

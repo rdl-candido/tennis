@@ -26,7 +26,7 @@ export class TennisSet {
     }
     return [
       `${this.player1Games}-${this.player2Games}`,
-      this.currentGame.score()
+      this.currentGame.score(),
     ]
       .filter(String)
       .join(`, `);
@@ -41,24 +41,21 @@ export class TennisSet {
     }
     if (this.currentGame.gameWinner === this.player1) {
       this.player1Games++;
-    }
-    else {
+    } else {
       this.player2Games++;
     }
     this.games.push(this.currentGame);
     if (this.player1Games >= 6 || this.player2Games >= 6) {
       const gamesDifference = Math.abs(this.player1Games - this.player2Games);
       if (gamesDifference >= 2 || this.currentGame instanceof TieBreakGame) {
-        this.setWinner = this.player1Games > this.player2Games ? this.player1 : this.player2;
-      }
-      else if (gamesDifference === 1) {
+        this.setWinner =
+          this.player1Games > this.player2Games ? this.player1 : this.player2;
+      } else if (gamesDifference === 1) {
         this.currentGame = new NormalGame(this.player1, this.player2);
-      }
-      else if (gamesDifference === 0) {
+      } else if (gamesDifference === 0) {
         this.currentGame = new TieBreakGame(this.player1, this.player2);
       }
-    }
-    else {
+    } else {
       this.currentGame = new NormalGame(this.player1, this.player2);
     }
   }

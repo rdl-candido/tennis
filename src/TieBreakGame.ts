@@ -11,14 +11,16 @@ export class TieBreakGame extends TennisGame {
     }
     if (player === this.player1) {
       this.player1Points++;
-    }
-    else {
+    } else {
       this.player2Points++;
     }
     if (this.player1Points >= 7 || this.player2Points >= 7) {
-      const pointsDifference = Math.abs(this.player1Points - this.player2Points);
+      const pointsDifference = Math.abs(
+        this.player1Points - this.player2Points
+      );
       if (pointsDifference >= 2) {
-        this.gameWinner = this.player1Points > this.player2Points ? this.player1 : this.player2;
+        this.gameWinner =
+          this.player1Points > this.player2Points ? this.player1 : this.player2;
       }
     }
   }
