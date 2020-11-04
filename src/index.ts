@@ -1,4 +1,4 @@
-import { Match } from "./match";
+import { Match } from "./Match";
 
 const match = new Match("player 1", "player 2");
 
