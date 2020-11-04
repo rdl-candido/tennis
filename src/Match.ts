@@ -21,7 +21,7 @@ export abstract class Game extends BaseTennis implements IGame {
   protected p1Points: number;
   protected p2Points: number;
 
-  private pointsDictionary = [0, 15, 30, 40];
+  protected abstract minPoints: number;
 
   constructor(p1: string, p2: string) {
     super(p1, p2);
@@ -30,18 +30,6 @@ export abstract class Game extends BaseTennis implements IGame {
     this.p2Points = 0;
   }
 
-  score(): string {
-    return `${this.pointsDictionary[this.p1Points]}-${
-      this.pointsDictionary[this.p2Points]
-    }`;
-  }
-
-  abstract pointWonBy(player: string): void;
-  abstract hasGameFinished(): boolean;
-  abstract whoWonGame(): string | undefined;
-}
-
-export class NormalGame extends Game {
   pointWonBy(player: string): void {
     if (this.p1 === player) {
       this.p1Points++;
@@ -50,42 +38,47 @@ export class NormalGame extends Game {
     }
   }
 
-  hasGameFinished(): boolean {
-    // A game is won by the first player to have won at least 4 points in total and at least 2 points more than the opponent.
-    const diffPoints = Math.abs(this.p1Points - this.p2Points);
-    if ((this.p1Points >= 4 || this.p2Points >= 4) && diffPoints >= 2) {
-      return true;
-    }
-    return false;
-  }
   whoWonGame(): string | undefined {
-    if (!this.hasGameFinished()) {
-      return undefined;
-    }
     if (this.p1Points > this.p2Points) {
       return this.p1;
     }
     return this.p2;
   }
+
+  hasGameFinished(): boolean {
+    const diffPoints = Math.abs(this.p1Points - this.p2Points);
+    if (
+      (this.p1Points >= this.minPoints || this.p2Points >= this.minPoints) &&
+      diffPoints >= 2
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  abstract score(): string;
+}
+
+export class NormalGame extends Game {
+  protected minPoints = 4;
+  private pointsDictionary = [0, 15, 30, 40];
+  score(): string {
+    const diffPoints = Math.abs(this.p1Points - this.p2Points);
+    if (this.p1Points >= 3 && this.p2Points >= 3) {
+      if (diffPoints === 0) return `deuce`;
+      if (this.p1Points > this.p2Points) return `advantage ${this.p1}`;
+      return `advantage ${this.p2}`;
+    }
+    return `${this.pointsDictionary[this.p1Points]}-${
+      this.pointsDictionary[this.p2Points]
+    }`;
+  }
 }
 
 export class TieBreak extends Game {
-  /* 
-  A tie-break, played under a separate set of rules, allows one player to win one more game and thus the set, to give a final set score of 7–6. 
-  A tie-break is scored one point at a time. The tie-break game continues until one player wins seven points by a margin of two or more points. 
-  Instead of being scored from 0, 15, 30, 40 like regular games, the score for a tie breaker goes up incrementally from 0 by 1. i.e a player's score will go from 0 to 1 to 2 to 3 …etc.
-*/
-  pointWonBy(player: string): void {
-    throw new Error("Method not implemented.");
-  }
+  protected minPoints = 7;
   score(): string {
-    throw new Error("Method not implemented.");
-  }
-  hasGameFinished(): boolean {
-    throw new Error("Method not implemented.");
-  }
-  whoWonGame(): string | undefined {
-    throw new Error("Method not implemented.");
+    return `${this.p1Points}-${this.p2Points}`;
   }
 }
 
@@ -105,10 +98,21 @@ export class Set extends BaseTennis implements ISet {
   }
 
   hasSetFinished(): boolean {
-    throw new Error("Method not implemented.");
+    const diffGames = Math.abs(this.p1Games - this.p2Games);
+    if ((this.p1Games >= 6 || this.p2Games >= 6) && diffGames >= 2) {
+      return true;
+    }
+    const currentGame = this.games[this.games.length - 1];
+    if (currentGame instanceof TieBreak) {
+      return currentGame.hasGameFinished();
+    }
+    return false;
   }
   whoWonSet(): string | undefined {
-    throw new Error("Method not implemented.");
+    if (this.p1Games > this.p2Games) {
+      return this.p1;
+    }
+    return this.p2;
   }
   pointWonBy(player: string): void {
     const currentGame = this.games[this.games.length - 1];
@@ -119,11 +123,18 @@ export class Set extends BaseTennis implements ISet {
     if (this.p1 === currentGame.whoWonGame()) {
       this.p1Games++;
     } else {
-      this.p1Games++;
+      this.p2Games++;
     }
-    this.games.push(new NormalGame(this.p1, this.p2));
+    if (this.games.length < 12) {
+      this.games.push(new NormalGame(this.p1, this.p2));
+    } else if (this.games.length === 12) {
+      this.games.push(new TieBreak(this.p1, this.p2));
+    }
   }
   score(): string {
+    if (this.hasSetFinished()) {
+      return `${this.whoWonSet()} won the set!`;
+    }
     return `${this.p1Games}-${this.p2Games}, ${this.games[
       this.games.length - 1
     ].score()}`;
@@ -139,9 +150,6 @@ export class Match extends BaseTennis implements ITennis {
   }
 
   pointWonBy(player: string): void {
-    if (player !== this.p1 && player !== this.p2) {
-      throw new Error(`Invalid player`);
-    }
     this.set.pointWonBy(player);
   }
   score(): string {
